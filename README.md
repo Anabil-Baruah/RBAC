@@ -1,4 +1,4 @@
-# Role Based Access Control (...still in dev mode...)
+# Role Based Access Control
 
 This is a Role Based Access Control application using Nodejs, Express, Passport Js, etc.
 You can use this application as the starting point for whatever project you are going to build which needs authentication and authorization.
@@ -59,4 +59,11 @@ Step 6: Start the app by
 
 ```bash
 npm start
+```
+
+Step 7: Login with admin
+
+```
+To access the admin account. Register with the admin email given in the .env folder (ADMIN_EMAIL) and set a password. Then you can access that admin account by simply logging in.
+
 ```
