@@ -18,7 +18,7 @@ router.post(
   ensureLoggedOut({ redirectTo: '/' }),
   passport.authenticate('local', {
     // successRedirect: '/',
-    successReturnToOrRedirect: '/',
+    successReturnToOrRedirect: '/user/profile',
     failureRedirect: '/auth/login',
     failureFlash: true,
   })

@@ -1,35 +1,178 @@
-<%- include ('layouts/header') %>
-<h1 class="table">Manage Users</h1>
+<%- include('layouts/header') %>
 
-<table class="table">
-  <thead>
-    <th>id</th>
-    <th>email</th>
-    <th>role</th>
-  </thead>
-  <tbody>
-    <% users.forEach(user => { %>
-    <tr>
-      <td><%= user.id %></td>
-      <td><a href="/admin/user/<%= user.id %>"><%= user.email %></a></td>
-      <td>
-        <form
-          action="/admin/update-role"
-          method="post"
-          class="manage-user-form"
-        >
-          <input type="hidden" name="id" value="<%= user.id %>" />
-          <select name="role" id="role">
-            <option value="ADMIN" <%= user.role === 'ADMIN' ? 'selected' : '' %> >Admin</option>
-            <option value="MODERATOR" <%= user.role === 'MODERATOR' ? 'selected' : '' %>>Moderator</option>
-            <option value="CLIENT" <%= user.role === 'CLIENT' ? 'selected' : '' %>>Client</option>
-          </select>
-          <input type="submit" value="update">
-        </form>
-      </td>
-    </tr>
-    <% }) %>
-  </tbody>
-</table>
+  <div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center">
+      <h1>Manage Users</h1>
+      <!-- Add New User Button -->
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+        Add New User
+      </button>
+    </div>
 
-<%- include ('layouts/footer') %>
+    <!-- Filter Input -->
+    <div class="my-3">
+      <input type="text" id="userFilter" placeholder="Search users by email" class="form-control" />
+    </div>
+
+    <!-- User Table -->
+    <table class="table table-bordered table-hover" id="userTable">
+      <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(user=> { %>
+          <tr>
+            <td>
+              <%= user.id %>
+            </td>
+            <td><a href="/admin/user/<%= user.id %>">
+                <%= user.email %>
+              </a></td>
+            <td>
+              <form action="/admin/update-role" method="post" class="d-inline">
+                <input type="hidden" name="id" value="<%= user.id %>" />
+                <select name="role" class="form-select form-select-sm d-inline w-auto">
+                  <option value="ADMIN" <%=user.role==='ADMIN' ? 'selected' : '' %> >Admin</option>
+                  <option value="MODERATOR" <%=user.role==='MODERATOR' ? 'selected' : '' %>>Moderator</option>
+                  <option value="CLIENT" <%=user.role==='CLIENT' ? 'selected' : '' %>>Client</option>
+                </select>
+                <button type="submit" class="btn btn-sm btn-success">Update</button>
+              </form>
+            </td>
+            <td>
+              <form action="/admin/delete-user" method="post" class="d-inline">
+                <input type="hidden" name="id" value="<%= user.id %>" />
+                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+              </form>
+              <!-- Edit Button -->
+              <button class="btn btn-warning btn-sm edit-button" data-bs-toggle="modal" data-bs-target="#editUserModal"
+                data-id="<%= user.id %>" data-email="<%= user.email %>" data-role="<%= user.role %>">
+                Edit
+              </button>
+            </td>
+          </tr>
+          <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Add New User Modal -->
+  <div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form action="/admin/add-user" method="post">
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" name="email" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" id="password" name="password" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="role" class="form-label">Role</label>
+              <select id="role" name="role" class="form-select" required>
+                <option value="ADMIN">Admin</option>
+                <option value="MODERATOR">Moderator</option>
+                <option value="CLIENT">Client</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Add User</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editUserForm" action="/admin/edit-user" method="post">
+            <input type="hidden" name="id" id="editUserId" />
+            <div class="mb-3">
+              <label for="editUserEmail" class="form-label">Email</label>
+              <input type="email" id="editUserEmail" name="email" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label for="editUserRole" class="form-label">Role</label>
+              <select id="editUserRole" name="role" class="form-select" required>
+                <option value="ADMIN">Admin</option>
+                <option value="MODERATOR">Moderator</option>
+                <option value="CLIENT">Client</option>
+              </select>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // JavaScript for Filter Functionality
+    const filterInput = document.getElementById('userFilter');
+    const table = document.getElementById('userTable');
+    const rows = table.getElementsByTagName('tr');
+
+    filterInput.addEventListener('input', function () {
+      const filterValue = this.value.toLowerCase();
+
+      // Loop through all table rows (except the header row)
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        const emailCell = cells[1]?.innerText.toLowerCase();
+
+        // Show or hide row based on filter
+        if (emailCell?.includes(filterValue)) {
+          rows[i].style.display = '';
+        } else {
+          rows[i].style.display = 'none';
+        }
+      }
+    });
+
+
+    // Populate Edit Modal with User Data
+    const editButtons = document.querySelectorAll('.edit-button');
+    const editUserModal = document.getElementById('editUserModal');
+    const editUserId = document.getElementById('editUserId');
+    const editUserEmail = document.getElementById('editUserEmail');
+    const editUserRole = document.getElementById('editUserRole');
+
+    editButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const userId = button.getAttribute('data-id');
+        const userEmail = button.getAttribute('data-email');
+        const userRole = button.getAttribute('data-role');
+
+        editUserId.value = userId;
+        editUserEmail.value = userEmail;
+        editUserRole.value = userRole;
+      });
+    });
+  </script>
+
+  <%- include('layouts/footer') %>
